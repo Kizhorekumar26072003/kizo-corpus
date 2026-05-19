@@ -93,3 +93,34 @@ The following are explicitly out of scope for V1. Each is something a reasonable
 - **Search and filter on expense list** — Deferred to v1.5 once users have enough data to need it.
 
 - **Investment and savings tracking** — These are transfers, not expenses, and need a proper data model. Deferred to v2.
+
+---
+
+## Users / Personas
+
+### Primary persona: Kizhore (and people like him)
+
+**Profile:**
+22, lives in India, works in IT. Currently honing his skills with the long-term intent to quit his job and start his own business. Uses his phone as his primary device. Average tech literacy — comfortable with apps but not a power user.
+
+**Relationship with money:**
+A study in contrasts.
+
+- **High agency on big decisions:** disciplined with investments, intentional about spending on upskilling (courses, books, tools).
+- **Low agency on small decisions:** daily expenses are chaotic, untracked, and invisible to him. He doesn't know where the money goes between paydays.
+
+**Why he wants to track:**
+Not to save money — to _see himself clearly._ He suspects (correctly) that his daily spending is leaking value he could redirect toward the life he's building. But every existing app makes tracking feel like punishment.
+
+**Trigger:**
+The recurring frustration of month-end disorientation — the bank balance is always slightly lower than it should be, and he can't explain why. Whatever the specific incident was, the trigger is the moment he stopped accepting "I just spend a lot" as an answer.
+
+**What success looks like in 3 months:**
+
+- He can name where his daily money goes without guessing.
+- His month-end balance is no longer a surprise.
+- He spends less mental energy worrying about money — not because he has more of it, but because he understands it.
+- He's still using the app.
+
+**Implicit secondary group: "People like Kizhore"**
+Young Indian professionals (~22-30), early-career, in a self-improvement / surplus-creation mindset, disciplined about long-term financial decisions but chaotic about short-term ones, and willing to try a new tool _only if it respects their attention_.
