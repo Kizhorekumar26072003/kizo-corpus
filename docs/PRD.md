@@ -124,3 +124,131 @@ The recurring frustration of month-end disorientation — the bank balance is al
 
 **Implicit secondary group: "People like Kizhore"**
 Young Indian professionals (~22-30), early-career, in a self-improvement / surplus-creation mindset, disciplined about long-term financial decisions but chaotic about short-term ones, and willing to try a new tool _only if it respects their attention_.
+
+---
+
+## User Stories (V1)
+
+User stories describe specific moments of use. Each maps to one or more Goals and is the unit of work we build and test against.
+
+### Authentication
+
+**Story 1 — Sign up**
+As a new user, I want to create an account with my email and password, so that my expense data is private to me and persists across devices.
+
+_Acceptance criteria:_
+
+- I can enter email + password and submit.
+- The system rejects weak passwords (minimum 8 characters) and invalid emails.
+- On success, I'm logged in and taken to the home screen.
+- Duplicate emails are rejected with a clear message.
+
+**Story 2 — Log in**
+As a returning user, I want to log in with my email and password, so that I can access my expenses.
+
+**Story 3 — Log out**
+As a logged-in user, I want to log out, so that no one else using my device can see my data.
+
+**Story 4 — Reset forgotten password**
+As a user who forgot my password, I want to receive a reset otp via email, so that I can regain access without contacting support.
+
+**Story 5 — Delete account**
+As a user, I want to permanently delete my account and all my data, so that I can leave the platform completely.
+
+_Acceptance criteria:_
+
+- Confirmation is required (typing the word "DELETE" or similar).
+- All my expense data is removed.
+- I can sign up again later with the same email if I choose.
+
+### Expense Entry
+
+**Story 6 — Add an expense by typing**
+As a logged-in user, I want to type a natural-language expense (e.g., _"300 chai"_) into a single field and submit it, so that I can log the expense in under 5 seconds.
+
+_Acceptance criteria:_
+
+- The home screen has one prominent input field.
+- After submit, AI parses the input within ~2 seconds.
+- A loading indicator shows while parsing is in progress.
+- The parsed result appears in the list immediately below.
+
+**Story 7 — See the parse before it saves**
+As a user who just submitted an expense, I want to see what the AI parsed before it commits, so that I can catch errors before they enter my data.
+
+_(Open question: do we show a confirmation step, or save immediately with edit-after option? Decide in Phase 3.)_
+
+**Story 8 — Handle AI parse uncertainty**
+As a user whose input the AI cannot confidently parse, I want the system to ask me for clarification rather than save garbage data, so that my expense list stays clean and I'm never blocked from logging.
+
+_Two sub-cases:_
+
+- **Unintelligible input** (e.g., _"asdkfj"_): AI responds _"I couldn't understand that — could you rephrase?"_ The user re-enters. No "did you mean" guessing.
+- **Ambiguous parse** (e.g., AI extracted an amount but is unsure about category or date): AI shows the parsed result inline with editable fields and a confirm button. User confirms or edits before save.
+
+### Expense Correction
+
+**Story 9 — Edit a parsed expense**
+As a user who notices an AI parse mistake, I want to tap any expense in the list and edit any of its fields (amount, category, description, date/time), so that my data stays accurate.
+
+**Story 10 — Delete an expense**
+As a user, I want to delete an expense I added by mistake, so that it doesn't pollute my reports.
+
+### Reports / Dashboard
+
+**Story 11 — See today's spending**
+As a user, I want to see how much I've spent today, broken down by category, so that I can sense-check my day's spending.
+
+**Story 12 — See this week's spending**
+As a user, I want to see this week's totals and category breakdown, so that I can spot short-term patterns.
+
+**Story 13 — See this month's spending**
+As a user, I want to see this month's totals and category breakdown, so that I'm never surprised at month-end.
+
+### Persistence
+
+**Story 14 — Data survives sessions and devices**
+As a user, I want my expenses to be available when I log in from any device, so that my data is portable and durable.
+
+### Empty States
+
+**Story 15 — First-time home screen**
+As a brand-new user with no expenses yet, I want to see an empty home screen that encourages me to log my first expense, so that I understand what to do and feel invited to start.
+
+_Acceptance criteria:_
+
+- Home screen shows a friendly message (e.g., _"Type your first expense to begin — try '300 chai' or '1500 grocery'"_).
+- The input field is prominent and focused.
+- No empty list, no "no data" sadness. The empty state is a welcome.
+
+**Story 16 — Empty reports screen**
+As a user who hasn't logged anything yet, I want the dashboard to show me a helpful message instead of empty zeros, so that I know what to expect once data exists.
+
+_Acceptance criteria:_
+
+- Dashboard shows a message like _"Once you log some expenses, you'll see your daily, weekly, and monthly breakdowns here."_
+- No misleading ₹0 totals or blank charts.
+- A clear call-to-action linking back to the home screen to add the first expense.
+
+### Error States & Edge Cases
+
+**Story 17 — Network failure during save**
+As a user submitting an expense, I want the operation to either fully succeed or fully fail — never partially — so that my data is never corrupted or duplicated.
+
+_Acceptance criteria:_
+
+- If the network fails before the expense is saved, the user sees a clear error and the input remains in the field for retry.
+- If the network fails _after_ the expense was saved, the system either retries or marks it clearly — never silently loses the data.
+- No half-saved, half-categorized, or duplicated entries.
+
+**Story 18 — Relative dates in input**
+As a user, I want to use natural relative dates like _"yesterday"_, _"3 days ago"_, or _"last Monday"_, so that I can log expenses for past days without manually picking a date.
+
+_Acceptance criteria:_
+
+- _"300 chai yesterday"_ on May 19, 2026 saves as May 18, 2026.
+- _"1500 grocery 3 days ago"_ on May 19, 2026 saves as May 16, 2026.
+- _"chips on 18th"_ on May 20, 2026 saves as May 18, 2026.
+- _"snack on 18th previous month"_ on May 20, 2026 saves as april 18, 2026.
+- If no date is mentioned, the date defaults to **now** (current date and time).
+- Future dates (_"tomorrow"_) are rejected with a clarification prompt — you can only log expenses that have happened.
