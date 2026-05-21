@@ -252,3 +252,75 @@ _Acceptance criteria:_
 - _"snack on 18th previous month"_ on May 20, 2026 saves as april 18, 2026.
 - If no date is mentioned, the date defaults to **now** (current date and time).
 - Future dates (_"tomorrow"_) are rejected with a clarification prompt — you can only log expenses that have happened.
+
+---
+
+## Functional Requirements (V1)
+
+This section defines the system behaviors required for V1. Each requirement is numbered and maps back to one or more Goals and User Stories.
+
+### FR-1: Authentication
+
+- **FR-1.1** The system must support user signup with email and password.
+- **FR-1.2** Passwords must be stored hashed (never plaintext). Hashing algorithm: bcrypt with cost factor ≥ 10.
+- **FR-1.3** Email addresses must be unique across all accounts.
+- **FR-1.4** The system must reject signups with invalid email format or passwords shorter than 8 characters.
+- **FR-1.5** The system must support login via email + password and return a session token.
+- **FR-1.6** Session tokens must expire after a defined period (default: 30 days) and be invalidated on logout.
+- **FR-1.7** The system must support password reset via OTP sent to the registered email.
+- **FR-1.8** OTPs must expire after 10 minutes and become invalid after a single use.
+- **FR-1.9** The system must support permanent account deletion, which removes the user record and all associated expense data.
+- **FR-1.10** Account deletion must require an explicit confirmation (e.g., typing "DELETE") and cannot be triggered by a single click.
+- **FR-1.11** Active sessions must be invalidated when an account is deleted, immediately ending access on all devices.
+- **FR-1.12** Failed login attempts must be rate-limited per email (e.g., max 5 attempts per 15 minutes) to prevent brute-force attacks.
+
+### FR-2: Expense Entry & Parsing
+
+- **FR-2.1** The home screen must present a single text input field as the primary mechanism for expense entry.
+- **FR-2.2** On submission, the system must send the raw input to an AI parser along with the current date and time of the user.
+- **FR-2.3** The AI parser must return four structured fields: `amount` (number), `category` (one of the seven fixed categories), `description` (string), `date_time` (ISO 8601 timestamp).
+- **FR-2.4** Total round-trip time from submit to result displayed must be ≤ 2 seconds under normal network conditions.
+- **FR-2.5** The system must display a loading indicator while parsing is in progress.
+- **FR-2.6** If parsing fails (unintelligible input), the system must prompt the user to rephrase, without saving any data.
+- **FR-2.7** If parsing succeeds but the AI flags any field as low-confidence, the system must show the parsed result with editable fields and require explicit user confirmation before saving.
+- **FR-2.8** Relative dates ("yesterday", "last Monday", "3 days ago", "on 18th", "18th previous month") must be resolved to absolute dates using the user's current date as reference.
+- **FR-2.9** If a parsed date resolves to the future, the system must reject the entry with a clarification prompt.
+- **FR-2.10** If no date is mentioned in the input, the system must default to the current date and time.
+- **FR-2.11** The chat input is reserved for **creation only**. Edit, delete, query, and search operations must not be invokable through the input field.
+
+### FR-3: Expense Storage & Persistence
+
+- **FR-3.1** Each saved expense must be associated with the authenticated user who created it.
+- **FR-3.2** Expense data must persist across sessions, devices, and app restarts.
+- **FR-3.3** A user must only be able to read, edit, or delete their own expenses.
+- **FR-3.4** Save operations must be atomic: an expense is either fully saved with all fields, or not saved at all. No partial writes.
+- **FR-3.5** On network failure during save, the system must inform the user and preserve their input for retry.
+
+### FR-4: Expense List
+
+- **FR-4.1** The home screen must display the user's expenses in reverse chronological order (most recent first).
+- **FR-4.2** Each list item must show: amount, category, description, and date/time.
+- **FR-4.3** Tapping an expense must open an editable view exposing all four fields.
+- **FR-4.4** Edits must be saved atomically (per FR-3.4) and reflected immediately in the list.
+- **FR-4.5** Deletion must require a confirmation step before removing the expense.
+- **FR-4.6** Deletion is hard-delete: removed expenses are permanently gone and do not appear in reports.
+
+### FR-5: Reports / Dashboard
+
+- **FR-5.1** A dedicated dashboard screen, separate from the home screen, must display three views: today, this week, this month.
+- **FR-5.2** Each view must show: total amount spent, and a breakdown by category.
+- **FR-5.3** Time boundaries follow the user's local timezone: "today" = midnight to midnight local, "week" = Monday to Sunday local, "month" = 1st to last day local.
+- **FR-5.4** Reports must reflect the current state of stored data, including the most recent edits and deletions.
+- **FR-5.5** If no expenses exist in a given period, the report must show an explicit empty state, not zero values that could mislead.
+
+### FR-6: Empty & Error States
+
+- **FR-6.1** First-time users with no expenses must see a welcoming empty state on the home screen, including an example input prompt.
+- **FR-6.2** Users with no expenses in the reporting period must see a helpful empty state on the dashboard.
+- **FR-6.3** Network failures, API errors, and parsing failures must each surface clear, user-readable messages — never raw error codes or stack traces.
+- **FR-6.4** All destructive actions (delete expense, delete account) must require explicit confirmation.
+
+### FR-7: Architecture Constraints
+
+- **FR-7.1** The data model must be designed such that introducing new tracker types (workout, food, etc.) in future versions does not require modifying the v1 expense schema or migrating existing expense data.
+- **FR-7.2** The AI parsing layer must be abstracted such that the underlying model/provider can be swapped without changes to business logic.
