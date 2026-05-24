@@ -324,3 +324,67 @@ This section defines the system behaviors required for V1. Each requirement is n
 
 - **FR-7.1** The data model must be designed such that introducing new tracker types (workout, food, etc.) in future versions does not require modifying the v1 expense schema or migrating existing expense data.
 - **FR-7.2** The AI parsing layer must be abstracted such that the underlying model/provider can be swapped without changes to business logic.
+
+---
+
+## Non-Functional Requirements (V1)
+
+Non-functional requirements define the _qualities_ the system must exhibit, beyond what features it provides.
+
+### NFR-1: Performance
+
+- **NFR-1.1** AI parsing round-trip (submit → parsed result displayed) must complete in ≤ 2 seconds at the 95th percentile under normal network conditions (≥ 5 Mbps).
+- **NFR-1.2** Home screen load (after login, with up to 100 expenses in the list) must render in ≤ 1 second.
+- **NFR-1.3 (correctness):** Dashboard totals must include _every_ expense within
+  the requested time window. No truncation, no approximation, no sampling.
+- **NFR-1.4 (performance target):** For typical loads (up to ~1,000 expenses
+  in the calculation window), the dashboard must render in ≤ 1.5 seconds.
+  Beyond this scale, performance may degrade gracefully, but correctness
+  (NFR-1.3) is non-negotiable.
+- **NFR-1.5** API endpoints (excluding AI parsing) must respond in ≤ 300 ms at the 95th percentile.
+
+### NFR-2: Security
+
+- **NFR-2.1** All client-server communication must use HTTPS. HTTP traffic must be rejected.
+- **NFR-2.2** Passwords must be hashed with bcrypt (cost factor ≥ 10). Plaintext passwords must never be logged, transmitted, or stored.
+- **NFR-2.3** Session tokens must be signed (e.g., JWT with HMAC-SHA256 or stored as opaque tokens in a session table) and validated on every authenticated request.
+- **NFR-2.4** The system must protect against the OWASP Top 10 vulnerabilities, particularly: SQL injection, XSS, CSRF, broken authentication, and insecure direct object references.
+- **NFR-2.5** API endpoints that act on user data must verify the requester owns the resource (per FR-3.3).
+- **NFR-2.6** Sensitive data in logs (passwords, OTPs, tokens, full expense lists) must be redacted or never logged.
+- **NFR-2.7** Environment secrets (API keys, DB credentials, JWT secrets) must be stored outside the codebase (e.g., environment variables, never committed to git).
+
+### NFR-3: Reliability
+
+- **NFR-3.1** The system must achieve ≥ 99% uptime over any rolling 30-day window in production.
+- **NFR-3.2** Data writes must be durable: a successfully acknowledged save must survive server restarts, crashes, and routine maintenance.
+- **NFR-3.3** If the AI parsing service is unavailable, the system must surface a clear error to the user — never silently fail or save unparsed data.
+- **NFR-3.4** All errors must be logged with sufficient context (timestamp, user ID, request ID, stack trace) to enable debugging — without leaking sensitive data (per NFR-2.6).
+
+### NFR-4: Usability
+
+- **NFR-4.1** The web app must be responsive and fully functional on screen widths from 360px (small phones) to 1920px (desktops).
+- **NFR-4.2** Primary actions (add expense, view dashboard, log out) must be reachable in ≤ 2 taps from the home screen.
+- **NFR-4.3** All interactive elements must be keyboard-accessible (Tab navigation, Enter to submit).
+- **NFR-4.4** Error messages must be written in plain language, never technical jargon or raw codes.
+- **NFR-4.5** The app must work on the latest two stable versions of Chrome, Safari, Firefox, and Edge. Older browsers may degrade but must not break.
+
+### NFR-5: Maintainability
+
+- **NFR-5.1** The codebase must follow a consistent style enforced by an automated linter and formatter (e.g., ESLint + Prettier).
+- **NFR-5.2** Every architectural decision (DB choice, framework choice, deployment choice, etc.) must be documented as an ADR in `docs/decisions/`.
+- **NFR-5.3** Business logic must be testable independently of the UI and the database (separation of concerns).
+- **NFR-5.4** The system must have automated tests covering: authentication flows, expense CRUD, and AI parsing happy/failure paths. Target coverage: ≥ 60% on business logic.
+- **NFR-5.5** A new developer onboarding to the codebase must be able to run the project locally within 30 minutes, following only the README.
+
+### NFR-6: Scalability
+
+V1 is not optimized for scale — it is optimized to ship. The following are the _modest_ scale targets V1 must handle without redesign:
+
+- **NFR-6.1** The system must support up to **100 concurrent users** without performance degradation beyond stated thresholds (NFR-1).
+- **NFR-6.2** A single user must be able to store up to 10,000 expenses without the dashboard calculation exceeding NFR-1.4. Storage of additional expenses must remain correct (per NFR-1.3) even if performance degrades beyond this scale.
+- **NFR-6.3** Scaling beyond these limits is explicitly **out of scope** for v1. Re-architecture is acceptable when these limits are approached.
+
+### NFR-7: Cost
+
+- **NFR-7.1** Monthly infrastructure cost (hosting + database + AI API) must remain under **₹1,500/month** at v1 scale (NFR-6 limits).
+- **NFR-7.2** AI parsing cost per expense entry must average under **₹0.50** at expected token volumes.
