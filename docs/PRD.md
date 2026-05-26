@@ -388,3 +388,71 @@ V1 is not optimized for scale — it is optimized to ship. The following are the
 
 - **NFR-7.1** Monthly infrastructure cost (hosting + database + AI API) must remain under **₹1,500/month** at v1 scale (NFR-6 limits).
 - **NFR-7.2** AI parsing cost per expense entry must average under **₹0.50** at expected token volumes.
+
+---
+
+## Success Metrics (V1)
+
+Success is measured 90 days after V1 ships. Each metric is observable, not subjective.
+
+### The Headline Metric
+
+- **SM-1: The Builder's Verdict**
+  At day 90 post-launch, the builder (Kizhore) can honestly answer **yes** to all three:
+  1. _"I trust this tool with my data."_ (Reliable)
+  2. _"Logging an expense feels good, not like a chore."_ (Happy to log)
+  3. _"I now know where my money goes in a way I didn't before."_ (On track)
+
+  If any of these is "no," V1 has not succeeded — regardless of what the other metrics say.
+
+### Product Metrics (supporting SM-1)
+
+- **SM-2: Voluntary adoption**
+  The builder uses Kizo-Corpus as his sole expense tracker for 90 consecutive days, _without setting reminders or forcing himself._ Defined as: at least one expense logged on ≥ 70 of those 90 days, with entries spread naturally across each day (not batched at month-end).
+
+- **SM-3: Entry friction**
+  Median time from "open the app" to "expense saved" is ≤ 10 seconds. Friction is what kills "happy to log."
+
+- **SM-4: Parse accuracy**
+  ≥ 90% of expense entries are saved without requiring manual correction. Measured as: (entries with no post-save edit) / (total entries) over the last 30 days. Low accuracy erodes trust (SM-1.1).
+
+- **SM-5: Dashboard usage**
+  The dashboard is opened at least once every 7 days, on average. Indicates the reports are valuable — that the builder is actually getting "on track" (SM-1.3), not just logging blindly.
+
+- **SM-6: Retention (becomes meaningful with multiple users)**
+  ≥ 60% of users who sign up log a second expense within 7 days of their first.
+
+### Technical Metrics (supporting "reliable")
+
+- **SM-7: Uptime**
+  ≥ 99% uptime over any rolling 30-day window (mirrors NFR-3.1).
+
+- **SM-8: API error rate**
+  < 1% of API requests return 5xx server errors over a rolling 7-day window.
+
+- **SM-9: Zero silent failures**
+  Zero incidents where data was lost, miscategorized, or reported incorrectly without the user being notified. This is a _correctness_ metric and is non-negotiable.
+
+- **SM-10: AI parsing reliability**
+  < 5% of parse attempts fail with an "unintelligible input" response.
+
+- **SM-11: Performance SLOs met**
+  P95 latencies stated in NFR-1.1 through NFR-1.5 are met in production for ≥ 95% of measurement windows.
+
+### Anti-metrics (what we will NOT optimize for)
+
+- **Daily active users** — V1 is not a growth product. Engagement-for-its-own-sake contradicts the philosophy ("reclaim attention, don't capture it").
+- **Time spent in app** — Less is better. A user who logs in 5 seconds and closes the app is succeeding, not failing.
+- **Session length** — Same reason. Long sessions in a tracker mean something is wrong.
+- **Number of features used per session** — Same reason. Doing one thing well > engaging with many things.
+
+### How metrics will be measured
+
+For v1, lightweight instrumentation only:
+
+- **App-level events:** Log signup, login, expense create/edit/delete, dashboard open. Store in a basic events table.
+- **Performance:** Server logs with timestamps for request start/end.
+- **Builder's Verdict (SM-1):** Self-assessment by the builder at days 30, 60, and 90. Documented in a `docs/post-launch-review.md`.
+- **Manual review:** Builder reviews own usage data weekly during the 90-day window.
+
+Dedicated analytics tools (PostHog, Mixpanel, etc.) are explicitly out of scope for v1.
