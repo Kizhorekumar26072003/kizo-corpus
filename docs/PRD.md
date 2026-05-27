@@ -488,3 +488,82 @@ All tech-stack and architecture questions raised during PRD drafting have been r
 - **OQ-9** Exact threshold for "low-confidence" parses — to be tuned during Phase 6 prompt engineering, refined post-launch with real data.
 - **OQ-19** Scope of v1.5 features (pattern detection, conversational mode) — revisit after 30 days of v1 usage.
 - **OQ-20** Audience growth strategy — out of v1 scope; revisit post-launch.
+
+---
+
+## Future Versions / Out of Scope
+
+V1 ships a focused expense tracker. The product vision extends well beyond this. The following are explicitly out of v1 scope but captured here to:
+
+- Prevent loss of context
+- Sequence future work in deliberate phases
+- Make clear what the Architecture Constraint (no v1 rewrite) must accommodate
+
+### V1.5 — Insights & Polish
+
+The first iteration after v1 ships, focused on adding value _within_ the expense tracker before expanding to new tracker types.
+
+- **Pattern detection (AI-driven insights)**
+  Weekly AI-generated observations about the user's spending behavior — e.g., _"You spent ₹4,200 on food deliveries this week, 38% of total spending."_ Built on top of v1's real data.
+
+- **Search and filter on expense list**
+  Filter expenses by date range, category, amount, or text. Deferred from v1 because list sizes are small in the first month of use.
+
+- **Yearly reports**
+  Extend dashboard to include yearly view in addition to today/week/month.
+
+- **PWA installability**
+  Allow users to install Kizo-Corpus to their home screen, giving native-app feel without app-store distribution.
+
+- **Conversational queries**
+  Allow users to ask questions like _"how am I doing this week?"_ or report passive states like _"haven't spent today."_ The AI replies with context-aware answers based on the user's actual data. Foundation: requires pattern detection to be meaningful.
+
+- **Charts and visualizations**
+  Beyond simple colored bars: optional pie chart of category breakdown, line graph of spending over time. Decision deferred until users actually request it.
+
+### V2 — Workout Tracker
+
+Second tracker type, built on the same substrate as expenses. Validates the Architecture Constraint.
+
+- Natural-language workout entry (_"ran 5km"_, _"45 min lifting"_, _"yoga 30 min yesterday"_)
+- Parses into structured fields: activity, duration, intensity, date/time, optional metrics (distance, weight, reps)
+- Dashboard with daily, weekly, monthly totals and category breakdowns (cardio, strength, mobility, etc.)
+- Same reliability, security, and performance contracts as v1
+
+### V3 — Food Tracker
+
+Third tracker type. Most challenging of the three because food entries are ambiguous (portion sizes, nutritional inference).
+
+- Natural-language food entry (_"two dosas at noon"_, _"chicken biryani for lunch"_, _"black coffee"_)
+- Parses into: food items, approximate portions, meal time, date
+- Optional: macro/calorie estimation via AI
+- Reports: daily/weekly meal patterns, eating-time analysis
+
+### V4+ — Other Trackers (TBD)
+
+The platform substrate, once validated through v2 and v3, can extend to:
+
+- Mood / journal tracker
+- Sleep tracker
+- Reading / learning tracker
+- Habits tracker
+
+Specific trackers will be added based on the builder's personal need and demand from real users. No commitments at this stage.
+
+### Permanently Out of Scope (across all versions)
+
+Some product directions are explicitly rejected, not deferred. These are decisions, not omissions.
+
+- **Social features** — sharing, comparing with friends, social feeds, leaderboards. Contradicts the platform's "personal caretaker" philosophy. Tracking should be private.
+- **Engagement-driven design** — push notifications to "increase usage," gamification, streak guilt, daily reminder badges. Contradicts the SM anti-metrics (time-in-app, session length, daily active users).
+- **Advertising / monetization through user data** — the user's data is theirs, never sold or used for ad targeting.
+
+### Roadmap Sequence
+
+```
+v1   →  Expense tracker  (ships Sept 16, 2026)
+v1.5 →  Insights & polish  (~3 months post-v1)
+v2   →  Workout tracker   (validates extension architecture)
+v3   →  Food tracker      (validates AI ambiguity handling)
+v4+  →  Additional trackers based on need
+```
