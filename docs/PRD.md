@@ -269,7 +269,7 @@ This section defines the system behaviors required for V1. Each requirement is n
 - **FR-1.6** Session tokens must expire after a defined period (default: 30 days) and be invalidated on logout.
 - **FR-1.7** The system must support password reset via OTP sent to the registered email.
 - **FR-1.8** OTPs must expire after 10 minutes and become invalid after a single use.
-- **FR-1.9** The system must support permanent account deletion, which removes the user record and all associated expense data.
+- **FR-1.9** The system must support permanent account deletion. Deletion enters a 7-day grace period during which the user can cancel by logging in again. After 7 days, the user record and all associated expense data are removed irrecoverably.
 - **FR-1.10** Account deletion must require an explicit confirmation (e.g., typing "DELETE") and cannot be triggered by a single click.
 - **FR-1.11** Active sessions must be invalidated when an account is deleted, immediately ending access on all devices.
 - **FR-1.12** Failed login attempts must be rate-limited per email (e.g., max 5 attempts per 15 minutes) to prevent brute-force attacks.
@@ -308,7 +308,7 @@ This section defines the system behaviors required for V1. Each requirement is n
 ### FR-5: Reports / Dashboard
 
 - **FR-5.1** A dedicated dashboard screen, separate from the home screen, must display three views: today, this week, this month.
-- **FR-5.2** Each view must show: total amount spent, and a breakdown by category.
+- **FR-5.2** Each view must show: total amount spent, and a breakdown by category displayed as colored proportional bars and numeric values. No chart libraries.
 - **FR-5.3** Time boundaries follow the user's local timezone: "today" = midnight to midnight local, "week" = Monday to Sunday local, "month" = 1st to last day local.
 - **FR-5.4** Reports must reflect the current state of stored data, including the most recent edits and deletions.
 - **FR-5.5** If no expenses exist in a given period, the report must show an explicit empty state, not zero values that could mislead.
@@ -456,3 +456,35 @@ For v1, lightweight instrumentation only:
 - **Manual review:** Builder reviews own usage data weekly during the 90-day window.
 
 Dedicated analytics tools (PostHog, Mixpanel, etc.) are explicitly out of scope for v1.
+
+---
+
+## Open Questions
+
+All tech-stack and architecture questions raised during PRD drafting have been resolved. Each resolved decision will be formalized as an ADR in `docs/decisions/` during Phase 3.
+
+### Resolved Decisions (to be formalized as ADRs)
+
+- AI parsing provider: **Claude Haiku**
+- Frontend stack: **Vite + React + TypeScript**
+- Backend framework: **Node + Express**
+- Database: **PostgreSQL**
+- Hosting: **Vercel** (frontend), **Railway** (backend + DB)
+- Email/OTP delivery: **Resend**
+- Authentication: **JWT**, 30-day expiry
+- Confirmation flow: parsed result shown, explicit confirm required before save
+- Dashboard visualization: numeric totals with colored category bars (no charts library)
+- Account deletion: 7-day grace period before permanent removal
+- Time storage: **UTC** in database, converted to user-local for display
+- Categories: hardcoded TypeScript enum (extension to other tracker types handled separately per Architecture Constraint)
+- Rate limiting: IP-based
+- Timezone detection: browser-detected at signup, stored on user record
+- Database backups: managed-provider daily snapshots, 7-day retention
+- Monitoring: UptimeRobot (uptime), Sentry (errors), host logs (performance)
+- Privacy Policy and ToS: required before any non-builder user signs up
+
+### Deferred Questions (revisit post-launch)
+
+- **OQ-9** Exact threshold for "low-confidence" parses — to be tuned during Phase 6 prompt engineering, refined post-launch with real data.
+- **OQ-19** Scope of v1.5 features (pattern detection, conversational mode) — revisit after 30 days of v1 usage.
+- **OQ-20** Audience growth strategy — out of v1 scope; revisit post-launch.
