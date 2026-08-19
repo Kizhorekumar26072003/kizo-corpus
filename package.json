@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.1106.0",
+    "@google/genai": "^2.17.0",
+    "express": "^5.2.1"
+  },
+  "name": "kizo-corpus",
+  "version": "1.0.0",
+  "description": "A personal life tracker platform.\r V1: expense tracker with zero-friction natural-language entry.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kizhorekumar26072003/kizo-corpus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kizhorekumar26072003/kizo-corpus/issues"
+  },
+  "homepage": "https://github.com/Kizhorekumar26072003/kizo-corpus#readme"
+}
