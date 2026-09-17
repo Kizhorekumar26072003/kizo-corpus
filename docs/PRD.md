@@ -23,7 +23,7 @@ V1 is complete when all of the following are true:
 
 1. **Authentication** — A user can sign up with email and password, log in, and log out. Each user's data is private to them.
 2. **Natural-language entry** — A user can type a free-form expense into a single input field on the home screen.
-3. **AI parsing** — The input is parsed into four structured fields: `amount`, `category`, `description`, `date_time`.
+3. **AI parsing** — The input is parsed into four structured fields: `amount`, `category`, `description`.
 4. **Parse review** — The user sees what the AI understood and can correct it before it saves.
 5. **Immediate feedback** — The saved expense appears in the list the moment it's stored.
 6. **Manual correction** — A user can edit or delete any expense in the list.
@@ -221,7 +221,7 @@ _Acceptance criteria:_
 - My input is preserved for retry.
 - Nothing is saved.
 
-**Story 9 — Relative dates**
+<!-- **Story 9 — Relative dates**
 As a user, I want to write dates the way I speak them, so that I can log past expenses without picking a date.
 
 _Acceptance criteria (reference date: 19 May 2026):_
@@ -231,7 +231,7 @@ _Acceptance criteria (reference date: 19 May 2026):_
 - _"chips on 18th"_ → 18 May 2026
 - _"snack on 18th previous month"_ → 18 April 2026
 - No date mentioned → now (current date and time).
-- A date resolving to the future is rejected with a clarification prompt — you can only log what has happened.
+- A date resolving to the future is rejected with a clarification prompt — you can only log what has happened. -->
 
 **Story 10 — Network failure while saving**
 As a user, I want a save to either fully succeed or fully fail, so that my data is never half-written or duplicated.
@@ -329,9 +329,9 @@ _Acceptance criteria:_
 - **FR-2.6** Validation rejects, without saving: malformed JSON, a missing required field, a `category` outside the fixed seven, an `amount` that is not a positive number, and an unparseable `date_time`.
 - **FR-2.7** Unintelligible input produces a rephrase prompt. No guessing, no partial save.
 - **FR-2.8** The parsed result is shown in editable fields and requires explicit confirmation before storage. What is stored is what the user confirmed, not what the model returned.
-- **FR-2.9** Relative dates are resolved against the user's local date: "yesterday", "N days ago", "last Monday", "on the 18th", "18th previous month".
+<!-- - **FR-2.9** Relative dates are resolved against the user's local date: "yesterday", "N days ago", "last Monday", "on the 18th", "18th previous month".
 - **FR-2.10** A date resolving to the future is rejected with a clarification prompt.
-- **FR-2.11** Absent any date in the input, `date_time` defaults to now.
+- **FR-2.11** Absent any date in the input, `date_time` defaults to now. -->
 - **FR-2.12** The **raw input text is stored alongside the parsed expense.** Without it, parse quality cannot be measured (SM-3), prompt changes cannot be evaluated, and a bad parse cannot be diagnosed after the fact.
 - **FR-2.13** The **prompt version is stored on each expense**, so a change in parse quality can be attributed to a specific prompt.
 - **FR-2.14** The parse endpoint is rate-limited per user. It is the only endpoint that costs money per call.
@@ -482,6 +482,29 @@ _Owner: Kizhore · Needed by: parsing spike · Blocks: FR-2.8_
 _Owner: Kizhore · Needed by: parsing spike · Blocks: all of FR-2_
 
 **OQ-4 — v1.5 scope.** Revisit after 30 days of real usage, not before.
+
+**OQ-5 — Dates: calendar picker instead of AI parsing**
+
+Decision (provisional): the date comes from a calendar that defaults to today.
+The parser no longer returns a date at all.
+
+Evidence: "previous month" resolved to Aug 2025 instead of Aug 2026 — a twelve-month
+error that every guard passed. Re-run gave a different wrong day. Same input,
+temperature 0.
+
+Trade: adds friction on backdated entries (tap the date, then type), which works
+against the low-friction purpose. But a silently wrong date is worse — if the user
+can't trust dates, they start checking them, and checking is the mental load the
+product exists to remove. A tap on rare entries beats doubt on every entry.
+
+Side effect: prompt dropped from 204 to ~48 tokens.
+
+Open: does backdating happen often enough that the friction matters?
+Resolve with two weeks of real use, not argument.
+
+If it does: add back only the forms that parsed reliably — "yesterday",
+"N days ago" — as an override on the calendar default. Leave out "previous month",
+"last Monday", "on the 18th", where the model was demonstrably unreliable.
 
 ---
 
