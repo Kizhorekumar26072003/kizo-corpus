@@ -1,3 +1,9 @@
+type Parsed = {
+  amount: number;
+  category: string;
+  description: string;
+};
+
 const categories = [
   "Food",
   "Transport",
@@ -66,7 +72,7 @@ const exampleOP = "break the code";
 // gives wrong date const exampleOP = "Dosa two hundred previous month";
 
 const resp = await getStructuredData(exampleOP);
-function checkParse(parsed: Object) {
+function checkParse(parsed: Parsed) {
   // invalid — don't store
   if (!parsed.amount || parsed.amount <= 0) return { status: "invalid" };
   if (!categories.includes(parsed.category)) return { status: "invalid" };
