@@ -51,3 +51,19 @@ Options, in order of quality:
 Keep their input in the field with a clear message so they can retry
 Save the raw text now, parse it later when the service recovers
 Drop to a plain form — amount, category, description — so the expense still gets recorded
+
+---
+
+_Systems thinking_
+
+**Variance, not a single reading** You have 788, 822, 882, 959, 1082, 2864, and one 90,000. One sample is meaningless. The spread is the finding — and that 90-second outlier is your real p99 risk, not the 800ms median.
+
+**Where the time actually goes** dur=1082 is Google's server-side measurement. Your wall-clock is higher — network round trip, TLS, queueing. You've never measured that gap. Wrap the call in Date.now() and compare. The difference tells you how much is the model versus how much is the pipe.
+
+**The ratio that matters** 14 tokens in, 31 out, 1082ms. So latency isn't driven by input size here — it's mostly fixed overhead plus output generation. That means a longer prompt costs you money but barely any time. Different levers for different problems.
+
+**What breaks first under load** You have one user. At a hundred: rate limits hit before latency degrades — you've already seen the 429s. So your bottleneck is quota, not speed. That changes what you'd optimise.
+
+**The budget check** 45 tokens × Flash-Lite's price × expected daily volume = your real monthly cost. Compare to NFR-6.1's ₹1,500. That's a number you can now put in the PRD instead of a guess.
+
+The one habit underneath all of it: predict a number, run, compare, record the delta. You've been running without predicting, which means you're collecting data but not testing your model of the system.

@@ -153,7 +153,7 @@ Pending
 
 ### ADR-007 —
 
-Expense schema and the multi-tracker seam. Cannot be written until the parser spike is done and the real output shape is known. Must record how workout and food trackers attach in v2 without migrating v1 expense data.
+Expense schema and the multi-tracker seam. all the tracking lives in same table."200rs chai" is ambiguous between expense and food, so a tracker selector adds friction and invites wrong entries — one input, parser returns the type. we store data as JSON with amount as an separate column.
 
 ### ADR-008 —
 

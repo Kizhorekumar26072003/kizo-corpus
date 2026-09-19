@@ -17,8 +17,6 @@ const categories = [
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-let date = new Date();
-let todayDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 const outputSchema = {
   type: "object",
   properties: {
@@ -48,16 +46,22 @@ const outputSchema = {
   required: ["amount", "category", "description"],
 };
 export async function getStructuredData(input: string) {
+  const start = Date.now();
   const res = await ai.models.generateContent({
     model: "gemini-3.5-flash-lite",
     contents: input,
     config: {
-      systemInstruction: `You are an expense tracking assistant. Today's current date is strictly ${todayDate}.  Today's date is ${todayDate}.`,
+      systemInstruction: `You are an expense tracking assistant`,
       temperature: 0,
       responseMimeType: "application/json",
       responseSchema: outputSchema,
     },
   });
+  const end = Date.now();
+  console.log("====================================");
+  console.log(end - start, "ms");
+  console.log("====================================");
+
   console.log("====================================");
 
   console.log(res);
@@ -67,7 +71,7 @@ export async function getStructuredData(input: string) {
   return JSON.parse(res.text);
 }
 
-const exampleOP = "break the code";
+const exampleOP = "dog 200rs";
 
 // gives wrong date const exampleOP = "Dosa two hundred previous month";
 
